@@ -49,6 +49,10 @@ public class BoardPanel extends JPanel {
             }
         }
     }
+    public void setBoard(Board newBoard) {
+    this.board = newBoard;
+    repaint();  // 通知 Swing 立即重绘
+    }
 
     public void refreshBoard() {
         repaint();

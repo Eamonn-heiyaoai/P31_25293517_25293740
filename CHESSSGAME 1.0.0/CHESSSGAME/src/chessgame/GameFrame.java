@@ -15,10 +15,15 @@ public class GameFrame extends JFrame {
         setLocationRelativeTo(null);
 
         Board board = new Board();
-        controller = new GameController(board);
+        
+        JLabel statusLabel = new JLabel("黑棋先行", SwingConstants.CENTER);
+        statusLabel.setFont(new Font("Microsoft YaHei", Font.PLAIN, 14));
+    
+        controller = new GameController(board, statusLabel);
         boardPanel = new BoardPanel(board, controller);
 
         add(boardPanel, BorderLayout.CENTER);
+        add(statusLabel, BorderLayout.SOUTH);
 
         // 添加菜单栏
         JMenuBar menuBar = new JMenuBar();
@@ -26,6 +31,13 @@ public class GameFrame extends JFrame {
         JMenuItem restartItem = new JMenuItem("重新开始");
         restartItem.addActionListener(e -> controller.restartGame(boardPanel));
         gameMenu.add(restartItem);
+        
+        JMenuItem backToMenuItem = new JMenuItem("🏠 返回主菜单");
+        backToMenuItem.addActionListener(e -> {
+            dispose();
+            new MainMenuFrame().setVisible(true);
+        });
+        gameMenu.add(backToMenuItem);
 
         JMenuItem exitItem = new JMenuItem("退出");
         exitItem.addActionListener(e -> System.exit(0));
@@ -34,8 +46,5 @@ public class GameFrame extends JFrame {
         menuBar.add(gameMenu);
         setJMenuBar(menuBar);
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GameFrame().setVisible(true));
-    }
 }
+
