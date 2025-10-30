@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Thu Oct 30 16:13:34 NZDT 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-019a-331b-3c4e-00000e8a3d10 
+on database directory D:\JAVA_PDC\P31_25293517_25293740\CHESSSGAME 1.0.0\CHESSSGAME\gomokuDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@65b54208 
+Loaded from file:/D:/Program%20Files%20(x86)/NetBeansProject/PDC_Tutorials/lib/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=21.0.7+8-LTS-245
+user.dir=D:\JAVA_PDC\P31_25293517_25293740\CHESSSGAME 1.0.0\CHESSSGAME
+os.name=Windows 11
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

@@ -42,8 +42,20 @@ public class MainMenuFrame extends JFrame {
 
         exitButton.addActionListener(e -> System.exit(0));
     }
-
+    
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainMenuFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            try {
+                //用于插入测试数据
+                //DatabaseManager.insertSampleData();
+                new MainMenuFrame().setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
+    
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> new MainMenuFrame().setVisible(true));
+//    }
 }
