@@ -27,16 +27,42 @@ public class MainMenuFrame extends JFrame {
         JButton startButton = new JButton("🎮 开始游戏");
         JButton rankButton = new JButton("🏆 查看玩家排名");
         JButton exitButton = new JButton("❌ 退出游戏");
+        JButton continueButton = new JButton("⏸ 继续游戏");
 
         buttonPanel.add(startButton);
         buttonPanel.add(rankButton);
         buttonPanel.add(exitButton);
+        buttonPanel.add(continueButton);
         add(buttonPanel, BorderLayout.CENTER);
 
         // ===== 按钮事件 =====
         startButton.addActionListener(e -> showPlayerNameDialog());
         rankButton.addActionListener(e -> new PlayerRankingFrame().setVisible(true));
         exitButton.addActionListener(e -> System.exit(0));
+        continueButton.addActionListener(e -> {
+            try {
+                GameSaveDAO dao = new GameSaveDAO();
+                SavedGame saved = dao.loadGame();
+                if (saved != null) {
+                    int confirm = JOptionPane.showConfirmDialog(
+                            this,
+                            "检测到上次的存档，是否继续游戏？",
+                            "继续游戏",
+                            JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        GameFrame gf = new GameFrame(saved.player1, saved.player2);
+                        gf.loadSavedGame(saved);
+                        gf.setVisible(true);
+                        dispose();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "没有找到任何存档。", "提示", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "读取存档失败：" + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
     }
 
     // ✅ 新增构造方法：用于返回时保留输入

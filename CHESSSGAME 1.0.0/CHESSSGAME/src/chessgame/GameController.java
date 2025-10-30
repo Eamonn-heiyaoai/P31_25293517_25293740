@@ -102,4 +102,28 @@ public class GameController {
             statusLabel.setText("新的游戏开始！" + player1.getName() + "（黑棋）先行");
         }
     }
+    // ✅ 获取当前棋盘
+    public Board getBoard() {
+        return this.board;
+    }
+
+    // ✅ 获取当前轮到的棋子（用于保存当前回合）
+    public ChessPiece getCurrentPiece() {
+        return this.currentPiece;
+    }
+
+    // ✅ 获取玩家名字（用于保存游戏）
+    public String getPlayer1Name() {
+        return this.player1.getName();
+    }
+
+    public String getPlayer2Name() {
+        return this.player2.getName();
+    }
+
+    // ✅ 允许在加载存档时设置当前棋子
+    public void setCurrentPiece(ChessPiece piece) {
+        this.currentPiece = piece;
+    }
+
 }

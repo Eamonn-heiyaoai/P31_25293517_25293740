@@ -7,7 +7,7 @@ package chessgame;
 public class Board {
     private static final int SIZE = 16;
     private static final int WIN_COUNT = 5; // 五子连珠
-    public ChessPiece[][] grid;
+    private ChessPiece[][] grid;
 
     public Board() {
         grid = new ChessPiece[SIZE][SIZE];
@@ -22,19 +22,17 @@ public class Board {
         if (row < 1 || row > SIZE || col < 1 || col > SIZE) {
             return false;
         }
-        if (grid[row-1][col-1] != ChessPiece.EMPTY) {
+        if (grid[row - 1][col - 1] != ChessPiece.EMPTY) {
             return false;
         }
-        grid[row-1][col-1] = piece;
+        grid[row - 1][col - 1] = piece;
         return true;
     }
 
-    // 新增：检查是否获胜
+    // ✅ 检查是否获胜
     public boolean checkWin(int row, int col, ChessPiece piece) {
-        // row/col 输入是 1-based，需要转成 0-based
         int r = row - 1, c = col - 1;
 
-        // 四个方向：水平、垂直、左斜、右斜
         int[][] directions = {
                 {0, 1},   // 水平
                 {1, 0},   // 垂直
@@ -44,15 +42,9 @@ public class Board {
 
         for (int[] d : directions) {
             int count = 1;
-
-            // 正向
             count += countPieces(r, c, d[0], d[1], piece);
-            // 反向
             count += countPieces(r, c, -d[0], -d[1], piece);
-
-            if (count >= WIN_COUNT) {
-                return true;
-            }
+            if (count >= WIN_COUNT) return true;
         }
         return false;
     }
@@ -84,8 +76,48 @@ public class Board {
             System.out.println();
         }
     }
-    
-    public ChessPiece[][] getBoard(){
+
+    public ChessPiece[][] getBoard() {
         return grid;
+    }
+
+    public void setBoard(ChessPiece[][] newGrid) {
+        this.grid = newGrid;
+    }
+
+    public int getSize() {
+        return SIZE;
+    }
+
+    // ✅ 存档功能：序列化棋盘
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                sb.append(grid[i][j].getSymbol());
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    // ✅ 读档功能：反序列化棋盘
+    public static Board fromString(String data) {
+        Board board = new Board();
+        String[] lines = data.split("\n");
+        for (int i = 0; i < lines.length && i < board.getSize(); i++) {
+            for (int j = 0; j < lines[i].length() && j < board.getSize(); j++) {
+                char c = lines[i].charAt(j);
+                if (c == ChessPiece.BLACK.getSymbol()) {
+                    board.grid[i][j] = ChessPiece.BLACK;
+                } else if (c == ChessPiece.WHITE.getSymbol()) {
+                    board.grid[i][j] = ChessPiece.WHITE;
+                } else {
+                    board.grid[i][j] = ChessPiece.EMPTY;
+                }
+            }
+        }
+        return board;
     }
 }

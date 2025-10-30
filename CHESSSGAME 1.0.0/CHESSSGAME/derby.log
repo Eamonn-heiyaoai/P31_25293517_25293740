@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Thu Oct 30 19:32:20 NZDT 2025:
+Thu Oct 30 20:52:32 NZDT 2025:
 正在使用类加载程序 jdk.internal.loader.ClassLoaders$AppClassLoader@65b54208 引导数据库
-目录 C:\Users\a1826\Desktop\CHESSSGAME 1.0.0\P31_25293517_25293740\CHESSSGAME 1.0.0\CHESSSGAME\gomokuDB 中的 Derby 版本 The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579) 实例 a816c00e-019a-33d1-36e7-00000e600000
+目录 C:\Users\a1826\Desktop\CHESSSGAME 1.0.0\P31_25293517_25293740\CHESSSGAME 1.0.0\CHESSSGAME\gomokuDB 中的 Derby 版本 The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579) 实例 a816c00e-019a-341a-a3d9-00000e6369d0
 已从 file:/C:/Program%20Files/Java/jdk-21/lib/derby.jar 加载
 java.vendor=Oracle Corporation
 java.runtime.version=21.0.2+13-LTS-58

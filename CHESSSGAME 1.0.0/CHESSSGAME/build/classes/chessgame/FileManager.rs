@@ -1,3 +1,0 @@
-chessgame.FileManager
-chessgame.GameRecord
-chessgame.PlayerRecord

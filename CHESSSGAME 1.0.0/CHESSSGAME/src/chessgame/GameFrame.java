@@ -15,6 +15,7 @@ public class GameFrame extends JFrame {
         this.player1Name = player1;
         this.player2Name = player2;
         initGame(); // 把界面初始化逻辑提取出去
+        setupWindowListener(); // ✅ 新增：添加关闭窗口时询问保存
     }
 
     // ✅ 兼容旧版本（如果没传名字）
@@ -25,7 +26,7 @@ public class GameFrame extends JFrame {
     private void initGame() {
         setTitle("五子棋 - " + player1Name + " vs " + player2Name);
         setSize(700, 750);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // ✅ 改成手动控制关闭
         setLocationRelativeTo(null);
 
         Board board = new Board();
@@ -48,10 +49,7 @@ public class GameFrame extends JFrame {
         gameMenu.add(restartItem);
 
         JMenuItem backToMenuItem = new JMenuItem("🏠 返回主菜单");
-        backToMenuItem.addActionListener(e -> {
-            dispose();
-            new MainMenuFrame().setVisible(true);
-        });
+        backToMenuItem.addActionListener(e -> backToMainMenu());
         gameMenu.add(backToMenuItem);
 
         JMenuItem backToNameInputItem = new JMenuItem("返回输入姓名界面");
@@ -65,12 +63,70 @@ public class GameFrame extends JFrame {
         });
         gameMenu.add(backToNameInputItem);
 
-
         JMenuItem exitItem = new JMenuItem("退出");
-        exitItem.addActionListener(e -> System.exit(0));
+        exitItem.addActionListener(e -> askSaveBeforeExit()); // ✅ 改成询问保存
         gameMenu.add(exitItem);
 
         menuBar.add(gameMenu);
         setJMenuBar(menuBar);
+    }
+
+    // ✅ 新增：退出游戏前询问是否保存
+    private void setupWindowListener() {
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                askSaveBeforeExit();
+            }
+        });
+    }
+
+    // ✅ 新增：封装询问保存逻辑
+    private void askSaveBeforeExit() {
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                "是否保存当前棋局进度？",
+                "退出游戏",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (option == JOptionPane.CANCEL_OPTION) {
+            return; // 不关闭窗口
+        }
+
+        if (option == JOptionPane.YES_OPTION) {
+            try {
+                GameSaveDAO dao = new GameSaveDAO();
+                dao.saveGame(controller.getBoard(),
+                        player1Name,
+                        player2Name,
+                        controller.getCurrentPiece());
+                JOptionPane.showMessageDialog(this, "✅ 棋局已成功保存！");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                        "保存失败：" + ex.getMessage(),
+                        "错误", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        // 不管是否保存，都回主菜单
+        backToMainMenu();
+    }
+
+    // ✅ 新增：统一回到主菜单
+    private void backToMainMenu() {
+        dispose();
+        new MainMenuFrame().setVisible(true);
+    }
+
+    // ✅ 新增：用于继续游戏加载存档
+    public void loadSavedGame(SavedGame saved) {
+        this.controller = new GameController(saved.board, statusLabel, saved.player1, saved.player2);
+        this.boardPanel.setBoard(saved.board);
+        this.controller.setCurrentPiece(saved.currentPiece);
+        statusLabel.setText("继续游戏：" + saved.player1 + " vs " + saved.player2);
+        repaint();
     }
 }

@@ -44,7 +44,22 @@ public class DatabaseManager {
                 throw e;
             }
         }
-        
+
+        try {
+            stmt.executeUpdate("CREATE TABLE saved_game (" +
+                    "id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, " +
+                    "player1 VARCHAR(50), " +
+                    "player2 VARCHAR(50), " +
+                    "current_piece CHAR(1), " +
+                    "board CLOB" +
+                    ")");
+            System.out.println("创建 saved_game 表成功");
+        } catch (SQLException e) {
+            if (!e.getSQLState().equals("X0Y32")) { // 表已存在
+                throw e;
+            }
+        }
+
         try {
             stmt.executeUpdate("CREATE TABLE games (" +
                     "id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, " +
