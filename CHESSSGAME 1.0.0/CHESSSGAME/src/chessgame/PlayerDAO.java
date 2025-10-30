@@ -5,10 +5,10 @@
 package chessgame;
 
 import chessgame.Player;
-import chessgame.ChessPiece;
 
 import java.sql.*;
 import java.util.HashMap;
+
 
 /**
  *
@@ -31,7 +31,7 @@ public class PlayerDAO {
             PreparedStatement updatePs = conn.prepareStatement(
                 "UPDATE players SET symbol=?, score=? WHERE name=?");
             updatePs.setString(1, String.valueOf(player.getPiece().getSymbol()));
-            updatePs.setInt(2, player.getScore());
+            updatePs.setDouble(2, player.getScore());
             updatePs.setString(3, player.getName());
             updatePs.executeUpdate();
             updatePs.close();
@@ -41,7 +41,7 @@ public class PlayerDAO {
                 "INSERT INTO players (name, symbol, score) VALUES (?, ?, ?)");
             insertPs.setString(1, player.getName());
             insertPs.setString(2, String.valueOf(player.getPiece().getSymbol()));
-            insertPs.setInt(3, player.getScore());
+            insertPs.setDouble(3, player.getScore());
             insertPs.executeUpdate();
             insertPs.close();
         }
@@ -59,11 +59,9 @@ public class PlayerDAO {
 
         while (rs.next()) {
             String name = rs.getString("name");
-            char symbol = rs.getString("symbol").charAt(0);
-            int score = rs.getInt("score");
-            ChessPiece piece = (symbol == 'X') ? ChessPiece.BLACK : ChessPiece.WHITE;
-            Player p = new Player(name, piece);
-            p.addScore(score);
+            double score = rs.getDouble("score");
+            Player p = new Player(name, ChessPiece.EMPTY);
+            p.setScore(score);
             playerMap.put(name, p);
         }
         rs.close();
@@ -73,24 +71,51 @@ public class PlayerDAO {
 
     
     //更新玩家分数
-    public void updateScore(String name, int newScore) throws SQLException {
+    public void updateScore(String name, double newScore) throws SQLException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
             "UPDATE players SET score=? WHERE name=?");
-        ps.setInt(1, newScore);
+        ps.setDouble(1, newScore);
         ps.setString(2, name);
         ps.executeUpdate();
         ps.close();
     }
     
     //给玩家增加分数
-    public void addScore(String name, int scoreToAdd) throws SQLException {
+    public void addScore(String name, double scoreToAdd) throws SQLException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
             "UPDATE players SET score = score + ? WHERE name=?");
-        ps.setInt(1, scoreToAdd);
+        ps.setDouble(1, scoreToAdd);
         ps.setString(2, name);
         ps.executeUpdate();
         ps.close();
     }
+
+    public Player getOrCreatePlayer(String name, ChessPiece piece) throws SQLException {
+        try {
+            Connection conn = DatabaseManager.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT score FROM players WHERE name=?");
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                double score = rs.getDouble("score");
+                return new Player(name, score);
+            } else {
+                PreparedStatement insert = conn.prepareStatement(
+                        "INSERT INTO players (name, score) VALUES (?, 1000)");
+                insert.setString(1, name);
+                insert.executeUpdate();
+                return new Player(name, 1000);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new Player(name, 1000);
+        }
+    }
+    public void updateScore(Player player) throws SQLException {
+        updateScore(player.getName(), player.getScore());
+    }
+
 }

@@ -26,7 +26,7 @@ public class PlayerRankingFrame extends JFrame {
         add(titleLabel, BorderLayout.NORTH);
 
         //创建表格
-        String[] columns = {"排名", "玩家名", "胜场"};
+        String[] columns = {"排名", "玩家名", "分数"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -96,14 +96,14 @@ public class PlayerRankingFrame extends JFrame {
             }
             
             List<Player> playerList = new ArrayList<>(playerMap.values());
-            playerList.sort((p1, p2) -> Integer.compare(p2.getScore(), p1.getScore()));
+            playerList.sort((p1, p2) -> Double.compare(p2.getScore(), p1.getScore()));
             
             int rank = 1;
             for (Player player : playerList) {
                 Object[] row = {
                     rank++,
                     player.getName(),
-                    player.getScore()
+                    (int)player.getScore()
                 };
                 tableModel.addRow(row);
             }

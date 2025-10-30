@@ -2,10 +2,13 @@ package chessgame;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class MainMenuFrame extends JFrame {
 
+    private String lastPlayer1 = "";
+    private String lastPlayer2 = "";
+
+    // ✅ 默认构造函数
     public MainMenuFrame() {
         setTitle("五子棋 - 主菜单");
         setSize(400, 300);
@@ -30,32 +33,61 @@ public class MainMenuFrame extends JFrame {
         buttonPanel.add(exitButton);
         add(buttonPanel, BorderLayout.CENTER);
 
-        // ===== 事件绑定 =====
-        startButton.addActionListener(e -> {
-            dispose();  // 关闭主菜单
-            new GameFrame().setVisible(true);  // 打开棋盘窗口
-        });
-
-        rankButton.addActionListener(e -> {
-            new PlayerRankingFrame().setVisible(true);
-        });
-
+        // ===== 按钮事件 =====
+        startButton.addActionListener(e -> showPlayerNameDialog());
+        rankButton.addActionListener(e -> new PlayerRankingFrame().setVisible(true));
         exitButton.addActionListener(e -> System.exit(0));
     }
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                //用于插入测试数据
-                //DatabaseManager.insertSampleData();
-                new MainMenuFrame().setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+
+    // ✅ 新增构造方法：用于返回时保留输入
+    public MainMenuFrame(String lastP1, String lastP2) {
+        this(); // 调用默认构造方法
+        this.lastPlayer1 = lastP1;
+        this.lastPlayer2 = lastP2;
     }
-    
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new MainMenuFrame().setVisible(true));
-//    }
+
+    // ✅ 独立的输入框逻辑
+    public void showPlayerNameDialog() {
+        JTextField player1Field = new JTextField(lastPlayer1);
+        JTextField player2Field = new JTextField(lastPlayer2);
+
+        Object[] message = {
+                "黑棋玩家名:", player1Field,
+                "白棋玩家名:", player2Field
+        };
+
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                message,
+                "输入玩家姓名",
+                JOptionPane.OK_CANCEL_OPTION
+        );
+
+        if (option == JOptionPane.OK_OPTION) {
+            String p1 = player1Field.getText().trim();
+            String p2 = player2Field.getText().trim();
+
+            if (p1.isEmpty() || p2.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "请填写双方的玩家姓名才能开始游戏！",
+                        "⚠️ 输入不完整",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            lastPlayer1 = p1;
+            lastPlayer2 = p2;
+
+            GameFrame gameFrame = new GameFrame(p1, p2);
+            gameFrame.setVisible(true);
+            dispose(); // 关闭主菜单
+        }
+    }
+
+    // ✅ 程序入口
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new MainMenuFrame().setVisible(true));
+    }
 }

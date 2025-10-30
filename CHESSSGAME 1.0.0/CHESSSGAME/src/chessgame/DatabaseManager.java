@@ -36,8 +36,7 @@ public class DatabaseManager {
         try {
             stmt.executeUpdate("CREATE TABLE players (" +
                     "name VARCHAR(50) PRIMARY KEY, " +
-                    "symbol CHAR(1), " + 
-                    "score INT" +
+                    "score REAL" +
                     ")");
             System.out.println("创建 players 表成功");
         } catch (SQLException e) {
