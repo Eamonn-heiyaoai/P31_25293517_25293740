@@ -6,7 +6,6 @@ package chessgame;
 
 import chessgame.Board;
 import chessgame.ChessPiece;
-import chessgame.Player;
 import java.sql.*;
 
 /**
