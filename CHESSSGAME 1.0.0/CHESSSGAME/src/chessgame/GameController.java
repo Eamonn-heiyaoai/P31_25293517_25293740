@@ -41,7 +41,7 @@ public class GameController {
         int cellSize = 40;
         int row = (y - 40 + cellSize / 2) / cellSize + 1;
         int col = (x - 40 + cellSize / 2) / cellSize + 1;
-
+        
         if (board.placePiece(row, col, currentPiece)) {
             if (board.checkWin(row, col, currentPiece)) {
                 Player winner = (currentPiece == ChessPiece.BLACK ? player1 : player2);
