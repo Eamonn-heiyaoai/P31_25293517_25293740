@@ -6,7 +6,7 @@ public class SavedGame {
     public ChessPiece currentPiece;
     public Board board;
     public int stepCount;
-    public int gameId;  //游戏ID
+    public int gameId;  //game ID
 
     public SavedGame(String p1, String p2, ChessPiece piece, Board board) {
         this(p1, p2, piece, board, 0);
@@ -18,10 +18,9 @@ public class SavedGame {
         this.currentPiece = piece;
         this.board = board;
         this.stepCount = stepCount;
-        this.gameId = -1;  // 默认为-1，表示未设置
+        this.gameId = -1; 
     }
     
-    //带游戏ID的构造函数
     public SavedGame(String p1, String p2, ChessPiece piece, Board board, int stepCount, int gameId) {
         this.player1 = p1;
         this.player2 = p2;

@@ -28,7 +28,6 @@ public class MoveRecord {
         this.moveTime = moveTime;
     }
     
-    // Getters
     public int getStepNumber() { return stepNumber; }
     public String getPlayerName() { return playerName; }
     public ChessPiece getPiece() { return piece; }

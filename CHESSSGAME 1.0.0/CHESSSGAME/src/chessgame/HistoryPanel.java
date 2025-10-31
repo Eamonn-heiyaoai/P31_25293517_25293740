@@ -19,7 +19,8 @@ public class HistoryPanel extends JPanel {
     private JList<String> historyList;
     private DefaultListModel<String> historyListModel;
     private GameController controller;
-
+    
+    //init the move_history panel
     public HistoryPanel(GameController controller) {
         this.controller = controller;
         setLayout(new BorderLayout());
@@ -46,7 +47,8 @@ public class HistoryPanel extends JPanel {
 
         updateHistory();
     }
-
+    
+    //update the history info in right panel
     public void updateHistory() {
         SwingUtilities.invokeLater(() -> {
             historyListModel.clear();

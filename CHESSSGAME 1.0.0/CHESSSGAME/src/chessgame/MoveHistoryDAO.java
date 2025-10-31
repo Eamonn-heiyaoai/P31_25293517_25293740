@@ -15,7 +15,7 @@ import org.apache.derby.iapi.error.StandardException;
  */
 public class MoveHistoryDAO {
     
-    //保存一步落子记录
+    //Save a move record
     public void saveMove(int gameId, int stepNumber, String playerName, 
                         ChessPiece piece, int row, int col) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
@@ -32,7 +32,7 @@ public class MoveHistoryDAO {
         ps.close();
     }
     
-    //获取指定游戏的所有落子历史
+    //Retrieve the complete move history of the specified game
     public List<MoveRecord> getMoveHistory(int gameId) throws SQLException, StandardException {
         List<MoveRecord> history = new ArrayList<>();
         Connection conn = DatabaseManager.getConnection();
@@ -61,7 +61,7 @@ public class MoveHistoryDAO {
         return history;
     }
     
-    //删除指定游戏的所有历史记录
+    //Delete all history of the specified game
     public void deleteGameHistory(int gameId) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
@@ -69,10 +69,9 @@ public class MoveHistoryDAO {
         ps.setInt(1, gameId);
         ps.executeUpdate();
         ps.close();
-        //System.out.println("已删除游戏 " + gameId + " 的历史记录");
     }
     
-    //获取最后一步的步数
+    //get the last steps
     public int getLastStepNumber(int gameId) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(

@@ -70,9 +70,6 @@ public class GameController {
                     moveHistoryDAO.saveMove(currentGameId, stepCount, currentPlayerName,
                             currentPiece, row, col);
 
-//                    System.out.println("✓ Saved move " + stepCount + ": " + currentPlayerName +
-//                                     " at (" + row + "," + col + ")");
-
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                     System.err.println("Failed to save move history: " + ex.getMessage());
@@ -93,7 +90,6 @@ public class GameController {
                     if (currentGameId != -1) {
                         GameDAO gameDAO = new GameDAO();
                         gameDAO.deleteSavedGame(player1.getName(), player2.getName());
-//                        System.out.println("✓ Game over. Save data cleared.");
                     }
 
                 } catch (SQLException ex) {
@@ -167,7 +163,8 @@ public class GameController {
         this.stepCount = stepCount;
         updateStatus();
     }
-
+    
+    //open auto save features
     public void setAutoSaveEnabled(boolean enabled) {
         this.autoSaveEnabled = enabled;
     }
@@ -175,7 +172,8 @@ public class GameController {
     public boolean isAutoSaveEnabled() {
         return autoSaveEnabled;
     }
-
+    
+    //get ths move_history from database
     public List<MoveRecord> getMoveHistory() throws StandardException {
         try {
             if (currentGameId != -1) {

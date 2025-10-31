@@ -24,7 +24,7 @@ public class DatabaseManager {
             try {
                 Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             } catch (ClassNotFoundException e) {
-                throw new SQLException("Derby 驱动未找到: " + e.getMessage());
+                throw new SQLException("Derby driver is missing: " + e.getMessage());
             }
             conn = DriverManager.getConnection(DB_URL);
             initTables();
@@ -35,7 +35,7 @@ public class DatabaseManager {
     private static void initTables() throws SQLException, StandardException {
         Statement stmt = conn.createStatement();
         
-        //创建玩家表
+        //create players table
         try {
             stmt.executeUpdate(
                 "CREATE TABLE players (" +
@@ -43,14 +43,15 @@ public class DatabaseManager {
                 "score REAL DEFAULT 1000" +
                 ")"
             );
-            System.out.println("创建 players 表成功");
+            System.out.println("create players success");
         } catch (SQLException e) {
-            if (!e.getSQLState().equals("X0Y32")) { //表已存在
+            if (!e.getSQLState().equals("X0Y32")) {
                 throw e;
             }
-            System.out.println("players 表已存在");
+            System.out.println("players already exit");
         }
         
+        //create saved_game table 
         try {
             stmt.executeUpdate(
                 "CREATE TABLE saved_game (" +
@@ -62,14 +63,15 @@ public class DatabaseManager {
                 "step_count INT DEFAULT 0" +
                 ")"
             );
-            System.out.println("创建 saved_game 表成功");
+            System.out.println("create saved_game success");
         } catch (SQLException e) {
             if (!e.getSQLState().equals("X0Y32")) {
                 throw e;
             }
-            System.out.println("saved_game 表已存在");
+            System.out.println("saved_game already exit");
         }
         
+        //create move_histroy table
         try {
             stmt.executeUpdate(
                 "CREATE TABLE move_history (" +
@@ -83,28 +85,28 @@ public class DatabaseManager {
                 "move_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ")"
             );
-            System.out.println("创建 move_history 表成功");
+            System.out.println("craete move_history success");
         } catch (SQLException e) {
             if (!e.getSQLState().equals("X0Y32")) {
                 throw e;
             }
-            System.out.println("move_history 表已存在");
+            System.out.println("move_history already exit");
         }
         
         stmt.close();
     }
     
-    //插入测试数据（以过时）
+    //insert test players infor
     public static void insertSampleData() throws SQLException, StandardException {
         Connection conn = getConnection();
         Statement stmt = conn.createStatement();
         
         String[] samplePlayers = {
-            "INSERT INTO players (name, symbol, score) VALUES ('Alice', 'X', 15)",
-            "INSERT INTO players (name, symbol, score) VALUES ('Bob', 'O', 12)",
-            "INSERT INTO players (name, symbol, score) VALUES ('Cathy', 'X', 10)",
-            "INSERT INTO players (name, symbol, score) VALUES ('David', 'O', 8)",
-            "INSERT INTO players (name, symbol, score) VALUES ('Eve', 'X', 5)"
+            "INSERT INTO players (name, symbol, score) VALUES ('lll', 'X', 150)",
+            "INSERT INTO players (name, symbol, score) VALUES ('eamonn', 'O', 120)",
+            "INSERT INTO players (name, symbol, score) VALUES ('321', 'X', 100)",
+            "INSERT INTO players (name, symbol, score) VALUES ('123', 'O', 80)",
+            "INSERT INTO players (name, symbol, score) VALUES ('harry', 'X', 50)"
         };
         
         for (String sql : samplePlayers) {
@@ -118,41 +120,27 @@ public class DatabaseManager {
         }
         
         stmt.close();
-        System.out.println("测试数据插入完成");
+        System.out.println("insert test infor success");
     }
     
-    //清空所有数据（谨用！谨用！谨用！）
-    public static void clearAllData() throws SQLException, StandardException {
-        Connection conn = getConnection();
-        Statement stmt = conn.createStatement();
-        
-        try {
-            stmt.executeUpdate("DELETE FROM games");
-            stmt.executeUpdate("DELETE FROM players");
-            System.out.println("所有数据已清空");
-        } finally {
-            stmt.close();
-        }
-    }
-    
-    //关闭数据库连接
+    //close the database link
     public static void closeConnection() {
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
-                System.out.println("数据库连接已关闭");
+                System.out.println("link close");
             }
             try {
                 DriverManager.getConnection("jdbc:derby:;shutdown=true");
             } catch (SQLException e) {
                 if (e.getSQLState().equals("XJ015")) {
-                    System.out.println("Derby 数据库已关闭");
+                    System.out.println("Derby database close");
                 } else {
                     throw e;
                 }
             }
         } catch (SQLException e) {
-            System.err.println("关闭数据库时出错: " + e.getMessage());
+            System.err.println("error when close the database: " + e.getMessage());
             e.printStackTrace();
         }
     }

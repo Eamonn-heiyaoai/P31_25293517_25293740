@@ -79,7 +79,8 @@ public class PlayerRankingFrame extends JFrame {
 
         loadPlayerRanking();
     }
-
+    
+    //load player info from datebase
     private void loadPlayerRanking() throws StandardException {
         try {
             tableModel.setRowCount(0);

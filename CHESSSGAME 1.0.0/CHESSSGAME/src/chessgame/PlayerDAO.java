@@ -17,18 +17,18 @@ import org.apache.derby.iapi.error.StandardException;
  */
 public class PlayerDAO {
 
-    //保存或更新玩家信息
+    //save or update player information
     public void savePlayer(Player player) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         
-        //先检查玩家是否已存在
+        //check whether the player already exists
         PreparedStatement checkPs = conn.prepareStatement(
             "SELECT name FROM players WHERE name=?");
         checkPs.setString(1, player.getName());
         ResultSet rs = checkPs.executeQuery();
         
         if (rs.next()) {
-            //若玩家已存在则执行更新
+            //if the player already exists, update it
             PreparedStatement updatePs = conn.prepareStatement(
                 "UPDATE players SET symbol=?, score=? WHERE name=?");
             updatePs.setString(1, String.valueOf(player.getPiece().getSymbol()));
@@ -37,7 +37,7 @@ public class PlayerDAO {
             updatePs.executeUpdate();
             updatePs.close();
         } else {
-            //若玩家不存在则执行插入
+            //if the player does not exist, then perform insertion
             PreparedStatement insertPs = conn.prepareStatement(
                 "INSERT INTO players (name, symbol, score) VALUES (?, ?, ?)");
             insertPs.setString(1, player.getName());
@@ -51,7 +51,7 @@ public class PlayerDAO {
         checkPs.close();
     }
 
-    //加载所有玩家数据
+    //load all players info
     public HashMap<String, Player> loadAllPlayers() throws SQLException, StandardException {
         HashMap<String, Player> playerMap = new HashMap<>();
         Connection conn = DatabaseManager.getConnection();
@@ -71,7 +71,7 @@ public class PlayerDAO {
     }
 
     
-    //更新玩家分数
+    //update players score
     public void updateScore(String name, double newScore) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
@@ -82,7 +82,7 @@ public class PlayerDAO {
         ps.close();
     }
     
-    //给玩家增加分数
+    //add players score
     public void addScore(String name, double scoreToAdd) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(

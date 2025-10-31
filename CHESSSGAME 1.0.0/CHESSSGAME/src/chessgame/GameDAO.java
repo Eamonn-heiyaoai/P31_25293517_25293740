@@ -15,9 +15,7 @@ import org.apache.derby.iapi.error.StandardException;
  */
 public class GameDAO {
 
-    /**
-     * 保存游戏并返回游戏ID
-     */
+    //save game and return game id
     public int saveGameAndGetId(String player1, String player2, ChessPiece currentPiece, 
                                 Board board, int stepCount) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
@@ -31,7 +29,7 @@ public class GameDAO {
         
         int gameId;
         if (rs.next()) {
-            // 已有存档，执行更新
+            //already have save, updata the database
             gameId = rs.getInt("id");
             PreparedStatement updatePs = conn.prepareStatement(
                 "UPDATE saved_game SET current_piece=?, board=?, step_count=? WHERE id=?");
@@ -41,9 +39,9 @@ public class GameDAO {
             updatePs.setInt(4, gameId);
             updatePs.executeUpdate();
             updatePs.close();
-            System.out.println("✓ 更新存档: " + player1 + " vs " + player2 + ", 步数: " + stepCount);
+            System.out.println("updata save: " + player1 + " vs " + player2 + ", steps: " + stepCount);
         } else {
-            // 没有存档，执行插入
+            //dont have save, insert into the database
             PreparedStatement insertPs = conn.prepareStatement(
                 "INSERT INTO saved_game (player1, player2, current_piece, board, step_count) " +
                 "VALUES (?, ?, ?, ?, ?)",
@@ -59,10 +57,10 @@ public class GameDAO {
             if (generatedKeys.next()) {
                 gameId = generatedKeys.getInt(1);
             } else {
-                throw new SQLException("创建游戏记录失败，无法获取ID");
+                throw new SQLException("fail to create game save, cant get the game id");
             }
             insertPs.close();
-            System.out.println("✓ 新建存档: " + player1 + " vs " + player2 + ", gameId: " + gameId);
+            System.out.println("create a new save: " + player1 + " vs " + player2 + ", gameId: " + gameId);
         }
         
         rs.close();
@@ -70,9 +68,7 @@ public class GameDAO {
         return gameId;
     }
     
-    /**
-     * 检查两个玩家之间是否有存档
-     */
+    //check whether has saved_game between two players
     public boolean hasSavedGame(String player1, String player2) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
@@ -91,9 +87,7 @@ public class GameDAO {
         return exists;
     }
     
-    /**
-     * 加载指定两个玩家的存档（包含游戏ID和步数）
-     */
+    //Load the saved game of the specified two players
     public SavedGame loadGame(String player1, String player2) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
@@ -113,8 +107,8 @@ public class GameDAO {
             Board board = Board.fromString(boardData);
             
             savedGame = new SavedGame(player1, player2, piece, board, stepCount, gameId);
-            System.out.println("✓ 加载存档: " + player1 + " vs " + player2 + 
-                             ", 步数: " + stepCount + ", gameId: " + gameId);
+            System.out.println("load game: " + player1 + " vs " + player2 + 
+                             ", steps: " + stepCount + ", gameId: " + gameId);
         }
         
         rs.close();
@@ -122,9 +116,7 @@ public class GameDAO {
         return savedGame;
     }
     
-    /**
-     * 根据玩家名获取游戏ID
-     */
+    //according to players to get game id
     public Integer getGameId(String player1, String player2) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
@@ -143,22 +135,20 @@ public class GameDAO {
         return gameId;
     }
     
-    /**
-     * 删除指定两个玩家的存档
-     */
+    //delete the specific players game
     public void deleteSavedGame(String player1, String player2) throws SQLException, StandardException {
     Connection conn = DatabaseManager.getConnection();
     
-    // ✅ 先获取游戏ID，用于删除历史记录
+    //get the game id
     Integer gameId = getGameId(player1, player2);
     if (gameId != null) {
-        // 删除历史记录
+        //delete game histroy
         MoveHistoryDAO historyDAO = new MoveHistoryDAO();
         historyDAO.deleteGameHistory(gameId);
-        System.out.println("✓ 已删除游戏 " + gameId + " 的历史记录");
+        System.out.println("delete game " + gameId + " success");
     }
     
-    // 删除存档
+    //delete save
     PreparedStatement ps = conn.prepareStatement(
         "DELETE FROM saved_game WHERE player1=? AND player2=?");
     ps.setString(1, player1);
@@ -167,29 +157,25 @@ public class GameDAO {
     ps.close();
     
     if (count > 0) {
-        System.out.println("✓ 删除存档成功: " + player1 + " vs " + player2);
+        System.out.println("delete the saved_game " + player1 + " vs " + player2);
     }
 }
     
-    /**
-     * 清空所有存档
-     */
+    //clear the all saved game
     public void clearAllSaves() throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         Statement st = conn.createStatement();
         
-        // 先清空历史记录
+        //clear infomation from table move_history
         st.executeUpdate("DELETE FROM move_history");
-        // 再清空存档
+        //clear information from table saved_game
         st.executeUpdate("DELETE FROM saved_game");
         
         st.close();
-        System.out.println("✓ 已清空所有存档和历史记录");
+        System.out.println("clear all saved_game success");
     }
     
-    /**
-     * 获取所有存档列表
-     */
+    //get all saved_game
     public java.util.List<SavedGame> getAllSavedGames() throws SQLException, StandardException {
         java.util.List<SavedGame> list = new java.util.ArrayList<>();
         Connection conn = DatabaseManager.getConnection();
