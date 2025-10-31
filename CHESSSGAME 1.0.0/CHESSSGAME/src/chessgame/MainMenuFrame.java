@@ -2,6 +2,9 @@ package chessgame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.derby.iapi.error.StandardException;
 
 public class MainMenuFrame extends JFrame {
 
@@ -40,8 +43,20 @@ public class MainMenuFrame extends JFrame {
         add(buttonPanel, BorderLayout.CENTER);
 
         // ===== 事件绑定 =====
-        startButton.addActionListener(e -> showPlayerNameDialog());
-        rankButton.addActionListener(e -> new PlayerRankingFrame().setVisible(true));
+        startButton.addActionListener(e -> {
+            try {
+                showPlayerNameDialog();
+            } catch (StandardException ex) {
+                Logger.getLogger(MainMenuFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        rankButton.addActionListener(e -> {
+            try {
+                new PlayerRankingFrame().setVisible(true);
+            } catch (StandardException ex) {
+                Logger.getLogger(MainMenuFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
         manageSavesButton.addActionListener(e -> showSaveManagement());
         exitButton.addActionListener(e -> {
             try {
@@ -56,7 +71,7 @@ public class MainMenuFrame extends JFrame {
     /**
      * 显示玩家输入对话框，并检查是否有存档
      */
-    public void showPlayerNameDialog() {
+    public void showPlayerNameDialog() throws StandardException {
         JTextField player1Field = new JTextField(lastPlayer1, 15);
         JTextField player2Field = new JTextField(lastPlayer2, 15);
 
@@ -98,12 +113,12 @@ public class MainMenuFrame extends JFrame {
     /**
      * 检查两个玩家是否有存档，如果有则询问是否加载
      */
-    private void checkAndStartGame(String player1, String player2) {
+    private void checkAndStartGame(String player1, String player2) throws StandardException {
         try {
             GameDAO gameDAO = new GameDAO();
             
             if (gameDAO.hasSavedGame(player1, player2)) {
-                // 有存档，询问是否加载
+                //若有存档则询问是否加载
                 int choice = JOptionPane.showConfirmDialog(
                         this,
                         "检测到 " + player1 + " 与 " + player2 + " 之间有一场未完成的对局。\n\n是否加载存档继续游戏？",
@@ -113,13 +128,13 @@ public class MainMenuFrame extends JFrame {
                 );
 
                 if (choice == JOptionPane.YES_OPTION) {
-                    // 加载存档
+                    //加载存档
                     loadAndStartGame(player1, player2);
                 } else {
                     startNewGame(player1, player2);
                 }
             } else {
-                // 没有存档，直接开始新游戏
+                //若没有存档则直接开始新游戏
                 startNewGame(player1, player2);
             }
             
@@ -165,7 +180,7 @@ public class MainMenuFrame extends JFrame {
     /**
      * 开始新游戏
      */
-    private void startNewGame(String player1, String player2) {
+    private void startNewGame(String player1, String player2) throws StandardException {
         GameFrame gameFrame = new GameFrame(player1, player2);
         gameFrame.setVisible(true);
         dispose();
@@ -189,7 +204,7 @@ public class MainMenuFrame extends JFrame {
                 return;
             }
             
-            // 构建存档列表
+            //构建存档列表
             StringBuilder sb = new StringBuilder("当前存档列表：\n\n");
             for (int i = 0; i < saves.size(); i++) {
                 SavedGame s = saves.get(i);

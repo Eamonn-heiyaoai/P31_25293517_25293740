@@ -3,6 +3,9 @@ package chessgame;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.derby.iapi.error.StandardException;
 
 public class BoardPanel extends JPanel {
     private final int CELL_SIZE = 40;
@@ -18,7 +21,11 @@ public class BoardPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (controller != null) {
-                    controller.handleClick(e.getX(), e.getY());
+                    try {
+                        controller.handleClick(e.getX(), e.getY());
+                    } catch (StandardException ex) {
+                        Logger.getLogger(BoardPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     repaint();
                 }
             }
@@ -33,7 +40,6 @@ public class BoardPanel extends JPanel {
     public void setController(GameController controller) {
         this.controller = controller;
 
-        // ✅ 移除旧监听器，重新绑定新的 controller
         for (MouseListener ml : getMouseListeners()) {
             removeMouseListener(ml);
         }
@@ -42,7 +48,11 @@ public class BoardPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (controller != null) {
-                    controller.handleClick(e.getX(), e.getY());
+                    try {
+                        controller.handleClick(e.getX(), e.getY());
+                    } catch (StandardException ex) {
+                        Logger.getLogger(BoardPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     repaint();
                 }
             }
@@ -57,11 +67,14 @@ public class BoardPanel extends JPanel {
         ChessPiece[][] grid = board.getBoard();
         int size = grid.length;
 
+        //绘制棋盘格线
+        g.setColor(Color.BLACK);
         for (int i = 0; i < size; i++) {
             g.drawLine(40, 40 + i * CELL_SIZE, 40 + (size - 1) * CELL_SIZE, 40 + i * CELL_SIZE);
             g.drawLine(40 + i * CELL_SIZE, 40, 40 + i * CELL_SIZE, 40 + (size - 1) * CELL_SIZE);
         }
 
+        //绘制棋子
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (grid[i][j] == ChessPiece.BLACK) {

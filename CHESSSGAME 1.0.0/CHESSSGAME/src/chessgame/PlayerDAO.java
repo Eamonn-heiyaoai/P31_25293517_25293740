@@ -8,6 +8,7 @@ import chessgame.Player;
 
 import java.sql.*;
 import java.util.HashMap;
+import org.apache.derby.iapi.error.StandardException;
 
 
 /**
@@ -17,7 +18,7 @@ import java.util.HashMap;
 public class PlayerDAO {
 
     //保存或更新玩家信息
-    public void savePlayer(Player player) throws SQLException {
+    public void savePlayer(Player player) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         
         //先检查玩家是否已存在
@@ -27,7 +28,7 @@ public class PlayerDAO {
         ResultSet rs = checkPs.executeQuery();
         
         if (rs.next()) {
-            //若玩家已存在，执行更新
+            //若玩家已存在则执行更新
             PreparedStatement updatePs = conn.prepareStatement(
                 "UPDATE players SET symbol=?, score=? WHERE name=?");
             updatePs.setString(1, String.valueOf(player.getPiece().getSymbol()));
@@ -36,7 +37,7 @@ public class PlayerDAO {
             updatePs.executeUpdate();
             updatePs.close();
         } else {
-            //若玩家不存在，执行插入
+            //若玩家不存在则执行插入
             PreparedStatement insertPs = conn.prepareStatement(
                 "INSERT INTO players (name, symbol, score) VALUES (?, ?, ?)");
             insertPs.setString(1, player.getName());
@@ -51,7 +52,7 @@ public class PlayerDAO {
     }
 
     //加载所有玩家数据
-    public HashMap<String, Player> loadAllPlayers() throws SQLException {
+    public HashMap<String, Player> loadAllPlayers() throws SQLException, StandardException {
         HashMap<String, Player> playerMap = new HashMap<>();
         Connection conn = DatabaseManager.getConnection();
         Statement st = conn.createStatement();
@@ -71,7 +72,7 @@ public class PlayerDAO {
 
     
     //更新玩家分数
-    public void updateScore(String name, double newScore) throws SQLException {
+    public void updateScore(String name, double newScore) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
             "UPDATE players SET score=? WHERE name=?");
@@ -82,7 +83,7 @@ public class PlayerDAO {
     }
     
     //给玩家增加分数
-    public void addScore(String name, double scoreToAdd) throws SQLException {
+    public void addScore(String name, double scoreToAdd) throws SQLException, StandardException {
         Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(
             "UPDATE players SET score = score + ? WHERE name=?");
@@ -92,7 +93,7 @@ public class PlayerDAO {
         ps.close();
     }
 
-    public Player getOrCreatePlayer(String name, ChessPiece piece) throws SQLException {
+    public Player getOrCreatePlayer(String name, ChessPiece piece) throws SQLException, StandardException {
         try {
             Connection conn = DatabaseManager.getConnection();
             PreparedStatement ps = conn.prepareStatement("SELECT score FROM players WHERE name=?");
@@ -114,7 +115,7 @@ public class PlayerDAO {
             return new Player(name, 1000);
         }
     }
-    public void updateScore(Player player) throws SQLException {
+    public void updateScore(Player player) throws SQLException, StandardException {
         updateScore(player.getName(), player.getScore());
     }
 

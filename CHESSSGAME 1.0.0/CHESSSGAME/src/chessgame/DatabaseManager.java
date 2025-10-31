@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.apache.derby.iapi.error.StandardException;
+import org.apache.derby.iapi.sql.ResultSet;
 
 /**
  *
@@ -17,7 +19,7 @@ public class DatabaseManager {
     private static final String DB_URL = "jdbc:derby:gomokuDB;create=true";
     private static Connection conn;
 
-    public static Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException, StandardException {
         if (conn == null || conn.isClosed()) {
             try {
                 Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -30,7 +32,7 @@ public class DatabaseManager {
         return conn;
     }
 
-    private static void initTables() throws SQLException {
+    private static void initTables() throws SQLException, StandardException {
         Statement stmt = conn.createStatement();
         
         //创建玩家表
@@ -41,15 +43,14 @@ public class DatabaseManager {
                 "score REAL DEFAULT 1000" +
                 ")"
             );
-            System.out.println("✓ 创建 players 表成功");
+            System.out.println("创建 players 表成功");
         } catch (SQLException e) {
             if (!e.getSQLState().equals("X0Y32")) { //表已存在
                 throw e;
             }
-            System.out.println("✓ players 表已存在");
+            System.out.println("players 表已存在");
         }
         
-        //创建存档表
         try {
             stmt.executeUpdate(
                 "CREATE TABLE saved_game (" +
@@ -57,22 +58,44 @@ public class DatabaseManager {
                 "player1 VARCHAR(50), " +
                 "player2 VARCHAR(50), " +
                 "current_piece CHAR(1), " +
-                "board CLOB" +
+                "board CLOB, " +
+                "step_count INT DEFAULT 0" +
                 ")"
             );
-            System.out.println("✓ 创建 saved_game 表成功");
+            System.out.println("创建 saved_game 表成功");
         } catch (SQLException e) {
             if (!e.getSQLState().equals("X0Y32")) {
                 throw e;
             }
-            System.out.println("✓ saved_game 表已存在");
+            System.out.println("saved_game 表已存在");
+        }
+        
+        try {
+            stmt.executeUpdate(
+                "CREATE TABLE move_history (" +
+                "id INT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY, " +
+                "game_id INT NOT NULL, " +
+                "step_number INT NOT NULL, " +
+                "player_name VARCHAR(50) NOT NULL, " +
+                "piece CHAR(1) NOT NULL, " +
+                "row_pos INT NOT NULL, " +
+                "col_pos INT NOT NULL, " +
+                "move_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")"
+            );
+            System.out.println("创建 move_history 表成功");
+        } catch (SQLException e) {
+            if (!e.getSQLState().equals("X0Y32")) {
+                throw e;
+            }
+            System.out.println("move_history 表已存在");
         }
         
         stmt.close();
     }
     
     //插入测试数据（以过时）
-    public static void insertSampleData() throws SQLException {
+    public static void insertSampleData() throws SQLException, StandardException {
         Connection conn = getConnection();
         Statement stmt = conn.createStatement();
         
@@ -99,7 +122,7 @@ public class DatabaseManager {
     }
     
     //清空所有数据（谨用！谨用！谨用！）
-    public static void clearAllData() throws SQLException {
+    public static void clearAllData() throws SQLException, StandardException {
         Connection conn = getConnection();
         Statement stmt = conn.createStatement();
         

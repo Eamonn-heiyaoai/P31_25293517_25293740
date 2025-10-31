@@ -7,13 +7,16 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.derby.iapi.error.StandardException;
 
 public class PlayerRankingFrame extends JFrame {
 
     private JTable table;
     private DefaultTableModel tableModel;
 
-    public PlayerRankingFrame() {
+    public PlayerRankingFrame() throws StandardException {
         setTitle("玩家排名");
         setSize(550, 450);
         setLocationRelativeTo(null);
@@ -63,7 +66,13 @@ public class PlayerRankingFrame extends JFrame {
         
         JButton refreshButton = new JButton("刷新排名");
         refreshButton.setFont(new Font("Microsoft YaHei", Font.PLAIN, 14));
-        refreshButton.addActionListener(e -> loadPlayerRanking());
+        refreshButton.addActionListener(e -> {
+            try {
+                loadPlayerRanking();
+            } catch (StandardException ex) {
+                Logger.getLogger(PlayerRankingFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
         
         JButton backButton = new JButton("返回主菜单");
         backButton.setFont(new Font("Microsoft YaHei", Font.PLAIN, 14));
@@ -78,7 +87,7 @@ public class PlayerRankingFrame extends JFrame {
     }
 
     //从数据库加载玩家排名数据
-    private void loadPlayerRanking() {
+    private void loadPlayerRanking() throws StandardException {
         try {
             // 清空现有数据
             tableModel.setRowCount(0);
