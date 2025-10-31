@@ -17,26 +17,24 @@ public class PlayerRankingFrame extends JFrame {
     private DefaultTableModel tableModel;
 
     public PlayerRankingFrame() throws StandardException {
-        setTitle("玩家排名");
+        setTitle("Player Ranking");
         setSize(550, 450);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
-        //添加标题
-        JLabel titleLabel = new JLabel("玩家排行榜", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Player Leaderboard", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Microsoft YaHei", Font.BOLD, 22));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(15, 0, 10, 0));
         add(titleLabel, BorderLayout.NORTH);
 
-        //创建表格
-        String[] columns = {"排名", "玩家名", "分数"};
+        String[] columns = {"Rank", "Player Name", "Score"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        
+
         table = new JTable(tableModel);
         table.setFont(new Font("Microsoft YaHei", Font.PLAIN, 14));
         table.setRowHeight(35);
@@ -44,13 +42,11 @@ public class PlayerRankingFrame extends JFrame {
         table.getTableHeader().setBackground(new Color(70, 130, 180));
         table.getTableHeader().setForeground(Color.WHITE);
         table.setSelectionBackground(new Color(173, 216, 230));
-        
-        //设置列宽
-        table.getColumnModel().getColumn(0).setPreferredWidth(80);  // 排名
-        table.getColumnModel().getColumn(1).setPreferredWidth(200); // 玩家名
-        table.getColumnModel().getColumn(2).setPreferredWidth(100); // 胜场
-        
-        //居中显示
+
+        table.getColumnModel().getColumn(0).setPreferredWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(100);
+
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < table.getColumnCount(); i++) {
@@ -61,10 +57,9 @@ public class PlayerRankingFrame extends JFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 15, 10, 15));
         add(scrollPane, BorderLayout.CENTER);
 
-        //按钮面板
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
-        
-        JButton refreshButton = new JButton("刷新排名");
+
+        JButton refreshButton = new JButton("Refresh Ranking");
         refreshButton.setFont(new Font("Microsoft YaHei", Font.PLAIN, 14));
         refreshButton.addActionListener(e -> {
             try {
@@ -73,55 +68,51 @@ public class PlayerRankingFrame extends JFrame {
                 Logger.getLogger(PlayerRankingFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        
-        JButton backButton = new JButton("返回主菜单");
+
+        JButton backButton = new JButton("Back to Main Menu");
         backButton.setFont(new Font("Microsoft YaHei", Font.PLAIN, 14));
         backButton.addActionListener(e -> dispose());
-        
+
         buttonPanel.add(refreshButton);
         buttonPanel.add(backButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // 加载数据
         loadPlayerRanking();
     }
 
-    //从数据库加载玩家排名数据
     private void loadPlayerRanking() throws StandardException {
         try {
-            // 清空现有数据
             tableModel.setRowCount(0);
-            
-            // 从数据库加载玩家
+
             PlayerDAO playerDAO = new PlayerDAO();
             HashMap<String, Player> playerMap = playerDAO.loadAllPlayers();
-            
+
             if (playerMap.isEmpty()) {
-                JOptionPane.showMessageDialog(this, 
-                    "暂无玩家！", 
-                    "提示", 
-                    JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "No players found!",
+                        "Info",
+                        JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            
+
             List<Player> playerList = new ArrayList<>(playerMap.values());
             playerList.sort((p1, p2) -> Double.compare(p2.getScore(), p1.getScore()));
-            
+
             int rank = 1;
             for (Player player : playerList) {
                 Object[] row = {
-                    rank++,
-                    player.getName(),
-                    (int)player.getScore()
+                        rank++,
+                        player.getName(),
+                        (int)player.getScore()
                 };
                 tableModel.addRow(row);
             }
-            
+
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, 
-                "加载玩家数据失败:\n" + e.getMessage(), 
-                "数据库错误", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Failed to load player data:\n" + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }

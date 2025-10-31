@@ -28,22 +28,20 @@ public class GameFrame extends JFrame {
     }
 
     private void initGame() throws StandardException {
-        setTitle("五子棋 - " + player1Name + " vs " + player2Name);
+        setTitle("Gomoku - " + player1Name + " vs " + player2Name);
         setSize(950, 750);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
 
         Board board = new Board();
-        statusLabel = new JLabel("当前玩家：" + player1Name + "（黑棋）- 第1手", SwingConstants.CENTER);
+        statusLabel = new JLabel("Current player: " + player1Name + " (Black) - Move 1", SwingConstants.CENTER);
         statusLabel.setFont(new Font("Microsoft YaHei", Font.PLAIN, 14));
 
         controller = new GameController(board, statusLabel, player1Name, player2Name);
         boardPanel = new BoardPanel(board, controller);
-        
-        // 创建历史面板
+
         historyPanel = new HistoryPanel(controller);
 
-        // 使用BorderLayout布局
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(boardPanel, BorderLayout.CENTER);
         centerPanel.add(historyPanel, BorderLayout.EAST);
@@ -51,48 +49,43 @@ public class GameFrame extends JFrame {
         add(centerPanel, BorderLayout.CENTER);
         add(statusLabel, BorderLayout.SOUTH);
 
-        // ===== 菜单栏 =====
         JMenuBar menuBar = new JMenuBar();
-        JMenu gameMenu = new JMenu("游戏");
+        JMenu gameMenu = new JMenu("Game");
 
-        //重新开始
-        JMenuItem restartItem = new JMenuItem("🔄 重新开始");
+        JMenuItem restartItem = new JMenuItem("🔄 Restart");
         restartItem.addActionListener(e -> {
             if (!isGameSaved && controller.getStepCount() > 0) {
                 int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "确定要重新开始吗？当前进度将丢失！",
-                    "重新开始",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
+                        this,
+                        "Are you sure you want to restart? Current progress will be lost!",
+                        "Restart",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
                 );
                 if (confirm != JOptionPane.YES_OPTION) {
                     return;
                 }
             }
-            
+
             try {
-                // ✅ 删除旧的存档和历史记录
                 deleteCurrentGameData();
             } catch (StandardException ex) {
                 Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             controller.restartGame(boardPanel);
             historyPanel.updateHistory();
             isGameSaved = false;
         });
         gameMenu.add(restartItem);
 
-        // 保存游戏
-        JMenuItem saveItem = new JMenuItem("💾 保存游戏");
+        JMenuItem saveItem = new JMenuItem("💾 Save Game");
         saveItem.addActionListener(e -> saveCurrentGame());
         gameMenu.add(saveItem);
 
         gameMenu.addSeparator();
 
-        // 返回主菜单
-        JMenuItem backToMenuItem = new JMenuItem("🏠 返回主菜单");
+        JMenuItem backToMenuItem = new JMenuItem("🏠 Back to Main Menu");
         backToMenuItem.addActionListener(e -> {
             try {
                 askSaveBeforeExit();
@@ -102,8 +95,7 @@ public class GameFrame extends JFrame {
         });
         gameMenu.add(backToMenuItem);
 
-        // 退出
-        JMenuItem exitItem = new JMenuItem("❌ 退出游戏");
+        JMenuItem exitItem = new JMenuItem("❌ Exit Game");
         exitItem.addActionListener(e -> {
             try {
                 askSaveBeforeExit();
@@ -117,9 +109,6 @@ public class GameFrame extends JFrame {
         setJMenuBar(menuBar);
     }
 
-    /**
-     * 保存当前游戏进度
-     */
     private void saveCurrentGame() {
         try {
             GameDAO gameDAO = new GameDAO();
@@ -130,15 +119,14 @@ public class GameFrame extends JFrame {
                     controller.getBoard(),
                     controller.getStepCount()
             );
-            
-            //更新 controller 的 gameId
+
             controller.setCurrentGameId(gameId);
             isGameSaved = true;
 
             JOptionPane.showMessageDialog(
                     this,
-                    "✅ 游戏进度已成功保存！\n\n下次开始游戏时可以选择继续。",
-                    "保存成功",
+                    "✅ Game progress saved successfully!\n\nYou can continue next time.",
+                    "Save Successful",
                     JOptionPane.INFORMATION_MESSAGE
             );
 
@@ -146,16 +134,13 @@ public class GameFrame extends JFrame {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(
                     this,
-                    "保存失败：" + ex.getMessage(),
-                    "错误",
+                    "Save failed: " + ex.getMessage(),
+                    "Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
     }
 
-    /**
-     * 退出前询问是否保存
-     */
     private void setupWindowListener() {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -169,16 +154,12 @@ public class GameFrame extends JFrame {
         });
     }
 
-    /**
-     * 询问保存并退出
-     */
     private void askSaveBeforeExit() throws StandardException {
-        //如果没有落子或已经保存过，直接退出
         if (controller.getStepCount() == 0) {
             backToMainMenu();
             return;
         }
-        
+
         if (isGameSaved) {
             backToMainMenu();
             return;
@@ -186,92 +167,73 @@ public class GameFrame extends JFrame {
 
         int option = JOptionPane.showConfirmDialog(
                 this,
-                "是否保存当前游戏进度？",
-                "退出游戏",
+                "Would you like to save the current game progress?",
+                "Exit Game",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
 
         if (option == JOptionPane.CANCEL_OPTION) {
-            return; // 取消，不退出
+            return;
         }
 
         if (option == JOptionPane.YES_OPTION) {
-            // ✅ 选择保存
             saveCurrentGame();
         } else if (option == JOptionPane.NO_OPTION) {
-            // ✅ 选择不保存，删除自动保存的数据
             deleteCurrentGameData();
         }
 
         backToMainMenu();
     }
 
-    /**
-     * 删除当前游戏的存档和历史记录
-     */
     private void deleteCurrentGameData() throws StandardException {
         try {
             GameDAO gameDAO = new GameDAO();
-            
-            //如果有游戏ID，说明有自动保存的数据，需要删除
+
             if (controller.getCurrentGameId() != -1) {
                 gameDAO.deleteSavedGame(player1Name, player2Name);
-                System.out.println("✓ 已删除未保存的游戏数据");
+                System.out.println("✓ Unsaved game data deleted");
             }
-            
+
         } catch (SQLException ex) {
-            System.err.println("删除游戏数据时出错: " + ex.getMessage());
+            System.err.println("Error deleting game data: " + ex.getMessage());
         }
     }
 
-    /**
-     * 返回主菜单
-     */
     private void backToMainMenu() {
         dispose();
         new MainMenuFrame().setVisible(true);
     }
 
-    /**
-     * 加载存档
-     */
     public void loadSavedGame(SavedGame saved) throws StandardException {
-        // 重新创建控制器
         this.controller = new GameController(saved.board, statusLabel, saved.player1, saved.player2);
         this.controller.setCurrentPiece(saved.currentPiece);
         this.controller.setStepCount(saved.stepCount);
         this.controller.setCurrentGameId(saved.gameId);
 
-        // 更新界面
         this.boardPanel.setController(this.controller);
         this.boardPanel.setBoard(saved.board);
-        
-        // 更新历史面板
+
         this.historyPanel.setController(this.controller);
         this.historyPanel.updateHistory();
 
         String currentPlayerName = (saved.currentPiece == ChessPiece.BLACK) ? saved.player1 : saved.player2;
-        String pieceName = (saved.currentPiece == ChessPiece.BLACK) ? "黑棋" : "白棋";
-        statusLabel.setText("继续游戏 - 当前玩家：" + currentPlayerName + "（" + pieceName + "）- 第" + (saved.stepCount + 1) + "手");
+        String pieceName = (saved.currentPiece == ChessPiece.BLACK) ? "Black" : "White";
+        statusLabel.setText("Continue Game - Current player: " + currentPlayerName + " (" + pieceName + ") - Move " + (saved.stepCount + 1));
 
-        //标记为已保存
         isGameSaved = true;
-        
+
         boardPanel.repaint();
 
         JOptionPane.showMessageDialog(
                 this,
-                "存档加载成功！\n\n继续游戏：" + saved.player1 + " vs " + saved.player2 + 
-                "\n当前步数：" + saved.stepCount,
-                "加载成功",
+                "Game loaded successfully!\n\nContinue: " + saved.player1 + " vs " + saved.player2 +
+                        "\nCurrent move: " + saved.stepCount,
+                "Load Successful",
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
 
-    /**
-     * 清除保存标志位（当玩家继续落子时调用）
-     */
     public void markGameAsUnsaved() {
         isGameSaved = false;
     }
