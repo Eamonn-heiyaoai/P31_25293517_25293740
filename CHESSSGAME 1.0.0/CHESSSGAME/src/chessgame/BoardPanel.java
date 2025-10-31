@@ -12,12 +12,39 @@ public class BoardPanel extends JPanel {
     public BoardPanel(Board board, GameController controller) {
         this.board = board;
         this.controller = controller;
-        setBackground(new Color(255, 204, 102)); // 棋盘木色
+        setBackground(new Color(255, 204, 102));
+
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                controller.handleClick(e.getX(), e.getY());
-                repaint();
+                if (controller != null) {
+                    controller.handleClick(e.getX(), e.getY());
+                    repaint();
+                }
+            }
+        });
+    }
+
+    public void setBoard(Board newBoard) {
+        this.board = newBoard;
+        repaint();
+    }
+
+    public void setController(GameController controller) {
+        this.controller = controller;
+
+        // ✅ 移除旧监听器，重新绑定新的 controller
+        for (MouseListener ml : getMouseListeners()) {
+            removeMouseListener(ml);
+        }
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (controller != null) {
+                    controller.handleClick(e.getX(), e.getY());
+                    repaint();
+                }
             }
         });
     }
@@ -25,16 +52,16 @@ public class BoardPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (board == null) return;
+
         ChessPiece[][] grid = board.getBoard();
         int size = grid.length;
 
-        // 绘制棋盘格线
         for (int i = 0; i < size; i++) {
             g.drawLine(40, 40 + i * CELL_SIZE, 40 + (size - 1) * CELL_SIZE, 40 + i * CELL_SIZE);
             g.drawLine(40 + i * CELL_SIZE, 40, 40 + i * CELL_SIZE, 40 + (size - 1) * CELL_SIZE);
         }
 
-        // 绘制棋子
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (grid[i][j] == ChessPiece.BLACK) {
@@ -48,17 +75,5 @@ public class BoardPanel extends JPanel {
                 }
             }
         }
-    }
-    public void setBoard(Board newBoard) {
-    this.board = newBoard;
-    repaint();  // 通知 Swing 立即重绘
-    }
-
-    public void refreshBoard() {
-        repaint();
-    }
-
-    public int getCellSize() {
-        return CELL_SIZE;
     }
 }

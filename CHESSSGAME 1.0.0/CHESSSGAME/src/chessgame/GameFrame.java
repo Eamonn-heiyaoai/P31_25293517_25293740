@@ -159,16 +159,18 @@ public class GameFrame extends JFrame {
 
     //加载存档
     public void loadSavedGame(SavedGame saved) {
-        this.boardPanel.setBoard(saved.board);
         this.controller = new GameController(saved.board, statusLabel, saved.player1, saved.player2);
+        this.boardPanel.setController(this.controller);
+        this.boardPanel.setBoard(saved.board);
+
         this.controller.setCurrentPiece(saved.currentPiece);
-        
+
         String currentPlayerName = (saved.currentPiece == ChessPiece.BLACK) ? saved.player1 : saved.player2;
         String pieceName = (saved.currentPiece == ChessPiece.BLACK) ? "黑棋" : "白棋";
-        
         statusLabel.setText("继续游戏 - 当前玩家：" + currentPlayerName + "（" + pieceName + "）");
+
         boardPanel.repaint();
-        
+
         JOptionPane.showMessageDialog(
                 this,
                 "存档加载成功！\n\n继续游戏：" + saved.player1 + " vs " + saved.player2,
@@ -176,7 +178,8 @@ public class GameFrame extends JFrame {
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
-    
+
+
     //清除保存标志位
     public void markGameAsUnsaved() {
         isGameSaved = false;

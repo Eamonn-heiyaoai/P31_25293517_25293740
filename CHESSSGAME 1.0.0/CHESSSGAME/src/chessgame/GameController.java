@@ -95,9 +95,8 @@ public class GameController {
 
         if (panel != null) {
             panel.setBoard(board);
-            SwingUtilities.invokeLater(panel::repaint);
+            panel.repaint();
         }
-
         if (statusLabel != null) {
             statusLabel.setText("新的游戏开始！" + player1.getName() + "（黑棋）先行");
         }
